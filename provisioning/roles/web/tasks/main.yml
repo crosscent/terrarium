@@ -3,6 +3,9 @@
 - name: setup virtualenv
   command: virtualenv env chdir={{document_root}} creates={{document_root}}/env
 
+- name: activate virtualenv upon login
+  shell: grep 'source env/bin/activate' {{document_root}}/.bashrc || echo 'source env/bin/activate' >> {{document_root}}/.bashrc
+
 - name: install requirements
   command: env/bin/pip install -r requirements.txt chdir={{document_root}}
 
