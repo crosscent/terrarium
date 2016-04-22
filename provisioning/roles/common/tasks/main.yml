@@ -1,0 +1,30 @@
+---
+- name: update apt
+  apt: update_cache=yes cache_valid_time=86400
+
+- name: install base packages
+  apt: pkg={{ item }} state=installed
+  with_items:
+    - build-essential
+    - git
+    - wget
+    - ntp
+    - sudo
+    - curl
+    - python-software-properties
+    - python-setuptools
+    - python
+    - python-dev
+    - python-pip
+    - python-virtualenv
+    - binutils
+
+- name: ensure en_CA.UTF-8 locale is generated
+  sudo: yes
+  shell: locale-gen en_CA.UTF-8
+
+- name: setup profile.d
+  template: src=etc/profile.d/terrarium.sh dest=/etc/profile.d/terrarium.sh
+
+- name: activate venv when logging in
+  shell: grep 'source env/bin/activate' ~/.bashrc || echo 'source env/bin/activate' >> ~/.bashrc 

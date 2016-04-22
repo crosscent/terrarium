@@ -1,0 +1,13 @@
+---
+
+- name: setup virtualenv
+  command: virtualenv env chdir={{document_root}} creates={{document_root}}/env
+
+- name: install requirements
+  command: env/bin/pip install -r requirements.txt chdir={{document_root}}
+
+- name: migrate
+  shell: bash -c "source /etc/profile.d/terrarium.sh; env/bin/python manage.py migrate --noinput" chdir={{document_root}}
+
+- name: create superuser
+  shell: bash -c 'source /etc/profile.d/terrarium.sh; env/bin/python manage.py dumpdata auth.User | grep test@bettermatter.com' || bash -c 'source /etc/profile.d/terrarium.sh; env/bin/python manage.py createsuperuser --username terrarium  --email test@bettermatter.com --no-input' chdir={{document_root}}

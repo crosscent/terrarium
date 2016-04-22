@@ -1,0 +1,22 @@
+---
+- hosts: all
+  remote_user: vagrant
+  sudo: yes
+
+  vars:
+    dbname: terrarium
+    dbuser: vagrant
+    dbpassword: vagrant
+    user_home: /home/vagrant
+    pg_version: 9.4
+    postgis_version: 2.2
+    document_root: /home/vagrant
+    wsgi_file: vagrant
+    django_settings: vagrant
+    django_owner: vagrant
+    TERRARIUM_SECRET_KEY: secret-key
+
+  roles:
+    - common
+    - postgresql
+    - web
