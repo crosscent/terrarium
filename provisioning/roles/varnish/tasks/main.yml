@@ -1,0 +1,12 @@
+- name: install varnish
+  apt: pkg={{ item }} state=installed update_cache=yes
+  with_items: 
+    - varnish
+
+- name: copy varnish config file
+  template: src=etc/varnish/default.vcl dest=/etc/varnish/default.vcl owner=root group=root mode=0644
+  notify: restart varnish
+
+- name: change port
+  shell: grep 'DAEMON_OPTS=\"-a :80' /etc/default/varnish || sed -i '/^DAEMON_OPTS=\"-a :6081* / s/6081/80/' /etc/default/varnish
+  notify: restart varnish
