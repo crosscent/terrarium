@@ -1,0 +1,15 @@
+#!/bin/bash
+
+cd /home/vagrant
+
+source /etc/profile.d/terrarium.sh
+
+NUM_WORKERS=5
+
+exec {{document_root}}/env/bin/gunicorn terrarium.config.wsgi:application \
+   --workers $NUM_WORKERS \
+   --keep-alive 3 \
+   --user {{django_owner}} \
+   --group {{django_owner}} \
+   --log-level error \
+   --timeout 30 \

@@ -1,0 +1,24 @@
+- name: sync files
+  synchronize: src=../../../../ dest={{document_root}}
+  notify:
+    - restart gunicorn
+
+- name: change ownership of files
+  file: path={{document_root}} recurse=yes owner={{django_owner}} group={{django_owner}} state=directory
+  notify:
+    - restart gunicorn
+
+- name: install supervisor
+  apt: pkg={{item}} state=installed
+  with_items:
+   - supervisor
+
+- name: gunicorn supervisor script
+  template: src=etc/supervisor/conf.d/admin_node.conf dest=/etc/supervisor/conf.d/admin_node.conf
+  notify:
+    - update supervisor
+
+- name: gunicorn script
+  template: src=bin/run_gunicorn dest={{document_root}}/run_gunicorn mode=u+x group={{django_owner}} owner={{django_owner}}
+  notify:
+    - update supervisor

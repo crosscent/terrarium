@@ -1,0 +1,13 @@
+---
+
+- name: reread supervisor
+  sudo: yes
+  command: supervisorctl reread
+
+- name: update supervisor
+  sudo: yes
+  command: supervisorctl update
+
+- name: restart gunicorn
+  sudo: yes
+  command: supervisorctl restart gunicorn
