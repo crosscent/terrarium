@@ -14,9 +14,13 @@ The `urlpatterns` list routes URLs to views. For more information please see:
             2. Import the include() function: from django.conf.urls import url, include
             3. Add a URL to urlpatterns: url(r'^blog/', include(blog_urls))
 """
+from django.conf.urls import include
 from django.conf.urls import url
 from django.contrib import admin
 
+from terrarium.web.api import urls as api_urls
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^api/', include(api_urls)),
 ]
