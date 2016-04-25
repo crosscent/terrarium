@@ -10,6 +10,7 @@ class Cluster(object):
     """
     def __init__(self, radius):
         self.radius = radius
+        self.area = math.pi * radius * radius
 
     def get_radius(self):
         return self.radius
@@ -23,16 +24,11 @@ class Pot(object):
         radius: The radius of the pot
     """
 
-    def __init__(self, radius):
-        """Initialize the Pot class with radius
+    def __init__(self):
+        """Initialize the Pot class with cluster
         """
-        self.radius = radius
         self.cluster = []
 
-    def get_radius(self):
-        """Returns the radius of the pot
-        """
-        return self.radius
 
     def add_cluster(self, cluster):
         """Add a cluster of seeds to the pot
@@ -41,6 +37,23 @@ class Pot(object):
             cluster: A cluster instance
         """
         self.cluster.append(cluster)
+
+
+class CircularPot(Pot):
+    """Class for a circular pot
+    """
+    
+    def __init__(self, radius):
+        """Initializes radius and area
+        """
+        super(CircularPot, self).__init__()
+        self.radius = radius
+        self.area = math.pi * radius * radius
+
+    def get_radius(self):
+        """Returns the radius of the pot
+        """
+        return self.radius
 
     def cluster_calculation(self, seed_cluster_radius, radius_difference):
         """Returns the maximum number of clusters of the type of seed inputted
@@ -81,10 +94,10 @@ class Pot(object):
         self.optimal_clusters = []
 
         if self.get_radius() < cluster.get_radius():
-            return "The minimum area for planing is {0}cm, and your pot only has an area of {1}".format(cluster.area, pot_area)
+            return (0, self.optimal_clusters)
 
         if self.get_radius() < cluster.get_radius() * 2:
-            return 1
+            return (1, self.optimal_clusters)
 
 
         radius_difference = self.get_radius() - cluster.get_radius()
@@ -105,6 +118,6 @@ def circular_pot_calculation(pot_radius, cluster_radius):
     Returns:
         A integer of the maximum number of clusters that can fit into that pot
     """
-    pot = Pot(radius=float(pot_radius))
+    pot = CircularPot(radius=float(pot_radius))
     seeds = Cluster(radius=float(cluster_radius))
     return pot.num_cluster_available(seeds)
