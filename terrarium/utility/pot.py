@@ -45,8 +45,11 @@ class Pot(object):
     def cluster_calculation(self, seed_cluster_radius, radius_difference):
         """Returns the maximum number of clusters of the type of seed inputted
         that can be planted in the Pot.
+
+        This algorithm is taken from The Engineering ToolBox
         """
 
+        # calculate the number of clusters
         number_of_circles = math.floor((2 * math.pi * radius_difference) / (2 * seed_cluster_radius))
         x0 = radius_difference * math.cos(0 * 2 * math.pi / number_of_circles)
         x1 = radius_difference * math.cos(1 * 2 * math.pi / number_of_circles)
@@ -55,6 +58,13 @@ class Pot(object):
         distance = math.pow((math.pow(x0 - x1, 2)) + (math.pow(y0 - y1, 2)), 0.5)
         if distance < 2 * seed_cluster_radius:
             number_of_circles -=1
+
+        # add cluster to optimal_clusters for image manipulation
+        for i in xrange(int(number_of_circles)):
+            self.optimal_clusters.append({"radius": seed_cluster_radius,
+                                          "x": radius_difference * math.cos(i*2*math.pi/number_of_circles),
+                                          "y": radius_difference * math.sin(i*2*math.pi/number_of_circles)
+                                         })
 
         new_radius_difference = radius_difference - (2 * seed_cluster_radius)
         if new_radius_difference >= seed_cluster_radius:
@@ -68,6 +78,8 @@ class Pot(object):
         """Returns the maximum number of clusters of the type of seed inputted
         that can be planted in the given Pot.
         """
+        self.optimal_clusters = []
+
         if self.get_radius() < cluster.get_radius():
             return "The minimum area for planing is {0}cm, and your pot only has an area of {1}".format(cluster.area, pot_area)
 
@@ -76,7 +88,8 @@ class Pot(object):
 
 
         radius_difference = self.get_radius() - cluster.get_radius()
-        return int(self.cluster_calculation(cluster.get_radius(), radius_difference))
+        return (int(self.cluster_calculation(cluster.get_radius(),
+            radius_difference)), self.optimal_clusters)
 
 def circular_pot_calculation(pot_radius, cluster_radius):
     """Calculate the number of seed clusters that can be planted in a given pot

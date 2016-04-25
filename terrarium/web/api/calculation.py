@@ -2,10 +2,14 @@
 This module hosts all the basic calculations that can be done, basically
 anything that does not require database queries
 """
+from django.http import HttpResponse
 
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
+
+from PIL import Image
+from PIL import ImageDraw
 
 from terrarium.utility.pot import circular_pot_calculation
 
@@ -39,8 +43,52 @@ class CalculationViewSet(viewsets.ViewSet):
         seed_radius = request.GET.get('seed_radius', None)
 
         # check to see if all parameters are met
-        if not pot_radius or not seed_radius:
+        if pot_radius and seed_radius:
+            pot_radius = int(pot_radius)
+            seed_radius = int(seed_radius)
+        else:
             return Response("Please specify pot_radius, and seed_radius in your parameters")
 
         # calculate number of clusters
-        return Response(circular_pot_calculation(pot_radius, seed_radius))
+        cluster_count, clusters = circular_pot_calculation(pot_radius,
+                seed_radius)
+        return Response({"cluster_count": cluster_count,
+                         "clusters": clusters})
+
+    @list_route(methods=['get'])
+    def circular_pot_image(self, request):
+        """
+        GET method implementation of calculating pot size
+
+        Similar to circular_pot, but returns an image instead
+        """
+        pot_radius = request.GET.get('pot_radius', None)
+        seed_radius = request.GET.get('seed_radius', None)
+
+        # check to see if all parameters are met
+        if pot_radius and seed_radius:
+            pot_radius = int(pot_radius)
+            seed_radius = int(seed_radius)
+        else:
+            return Response("Please specify pot_radius, and seed_radius in your parameters")
+        
+        # variables required for drawing
+        canvas_height = 500
+        canvas_width = 500
+        canvas_center_x = canvas_width / 2
+        canvas_center_y = canvas_height / 2
+        ratio = canvas_height / 2 / pot_radius
+
+        # draw circles
+        image = Image.new('RGBA', (canvas_width, canvas_height), 'white')
+        draw = ImageDraw.Draw(image)
+        clusters = self.circular_pot(request).data['clusters']
+        for cluster in clusters:
+            draw.ellipse((canvas_center_x + (cluster['x'] - seed_radius) * ratio,
+                           canvas_center_y + (cluster['y'] - seed_radius) * ratio,
+                           canvas_center_x + (cluster['x'] + seed_radius) * ratio,
+                           canvas_center_y + (cluster['y'] + seed_radius) * ratio),
+                           fill="#009933")
+        response = HttpResponse(content_type="image/jpeg")
+        image.save(response, "JPEG")
+        return response

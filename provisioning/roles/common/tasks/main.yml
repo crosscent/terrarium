@@ -18,6 +18,7 @@
     - python-pip
     - python-virtualenv
     - binutils
+    - libjpeg-dev
 
 - name: ensure en_CA.UTF-8 locale is generated
   sudo: yes
