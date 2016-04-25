@@ -104,6 +104,53 @@ class CircularPot(Pot):
         return (int(self.cluster_calculation(cluster.get_radius(),
             radius_difference)), self.optimal_clusters)
 
+class RectangularPot(Pot):
+    """ Class for rectangular pot
+    """
+    def __init__(self, length, width):
+        """Initializes area, length, and width
+        """
+        super(RectangularPot, self).__init__()
+        self.length = length
+        self.width = width
+        self.area = length * width
+    
+    def get_length(self):
+        """Return length of the pot
+        """
+        return self.length
+
+    def get_width(self):
+        """Return width of the pot
+        """
+        return self.width
+
+    def cluster_calculation(self, seed_cluster_radius):
+        # calculate the number of clusters
+        seed_cluster_x_count = int(self.get_length() / (seed_cluster_radius * 2))
+        seed_cluster_y_count = int(self.get_width() / (seed_cluster_radius* 2))
+
+        # add cluster to .optimal_clusters for image manipulation
+        for x_count in xrange(seed_cluster_x_count):
+            for y_count in xrange(seed_cluster_y_count):
+                self.optimal_clusters.append({"radius": seed_cluster_radius,
+                                              "x": seed_cluster_radius + (x_count * seed_cluster_radius * 2),
+                                              "y": seed_cluster_radius + (y_count * seed_cluster_radius * 2)
+                                             })
+        return seed_cluster_x_count * seed_cluster_y_count
+
+    def num_cluster_available(self, cluster):
+        """Returns the maximum number of clusters of the type of seed inputted
+        that can be planted in the given Pot.
+        """
+        self.optimal_clusters = []
+    
+        if (self.get_length() < cluster.get_radius() or 
+            self.get_width < cluster.get_radius()):
+            return (0, self.optimal_clusters)
+        
+        return (self.cluster_calculation(cluster.get_radius()), self.optimal_clusters)
+
 def circular_pot_calculation(pot_radius, cluster_radius):
     """Calculate the number of seed clusters that can be planted in a given pot
 
@@ -116,8 +163,24 @@ def circular_pot_calculation(pot_radius, cluster_radius):
         cluster_radius: Optimal radius of a cluster of seeds
 
     Returns:
-        A integer of the maximum number of clusters that can fit into that pot
+        A tuple (cluster_count, cluster_location)
     """
     pot = CircularPot(radius=float(pot_radius))
+    seeds = Cluster(radius=float(cluster_radius))
+    return pot.num_cluster_available(seeds)
+
+def rectangular_pot_calculation(pot_length, pot_width, cluster_radius):
+    """Calculate the number of seed clusters that can be planted in a
+    rectangular pot
+
+    Args:
+        pot_length: the length of the pot
+        pot_width: the width of the pot
+        cluster_radius: optimal radius of a cluster of seeds
+
+    Returns:
+        A tuple (cluster_count, cluster_location)
+    """
+    pot = RectangularPot(float(pot_length), float(pot_width))
     seeds = Cluster(radius=float(cluster_radius))
     return pot.num_cluster_available(seeds)
