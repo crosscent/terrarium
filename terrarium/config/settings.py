@@ -54,6 +54,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'terrarium.config.whitenoise_custom.CustomWhiteNoise',
     ]
 
 ROOT_URLCONF = 'terrarium.config.urls'
@@ -135,3 +136,4 @@ STATIC_URL = '/static/'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(BASE_DIR, '../static/')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+WHITENOISE_ROOT = os.path.join(BASE_DIR, "../../ui/")
