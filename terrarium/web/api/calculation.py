@@ -44,8 +44,11 @@ class CalculationViewSet(viewsets.ViewSet):
 
         # check to see if all parameters are met
         if pot_radius and seed_radius:
-            pot_radius = int(pot_radius)
-            seed_radius = int(seed_radius)
+            try:
+                pot_radius = float(pot_radius)
+                seed_radius = float(seed_radius)
+            except ValueError:
+                return Response("Please enter numbers for pot_radius, and seed_radius")
         else:
             return Response("Please specify pot_radius, and seed_radius in your parameters")
 
@@ -67,8 +70,11 @@ class CalculationViewSet(viewsets.ViewSet):
 
         # check to see if all parameters are met
         if pot_radius and seed_radius:
-            pot_radius = int(pot_radius)
-            seed_radius = int(seed_radius)
+            try:
+                pot_radius = float(pot_radius)
+                seed_radius = float(seed_radius)
+            except ValueError:
+                return Response("Please enter numbers for pot_radius, and seed_radius")
         else:
             return Response("Please specify pot_radius, and seed_radius in your parameters")
         
