@@ -11,9 +11,13 @@ terrariumHome.config(function($routeProvider) {
             templateUrl: 'partials/main/about.html',
             controller: 'AboutController'
         }).
-        when('/tools', {
-            templateUrl: 'partials/tools/home.html',
-            controller: 'ToolController'
-        }).
         otherwise({redirectTo: '/home'});
+});
+
+terrariumHome.controller("HomeController", function($scope) {
+    $scope.hello = "Hello";
+});
+
+terrariumHome.controller("AboutController", function($scope) {
+
 });
