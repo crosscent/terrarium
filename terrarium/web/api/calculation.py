@@ -2,6 +2,9 @@
 This module hosts all the basic calculations that can be done, basically
 anything that does not require database queries
 """
+import base64
+import cStringIO
+
 from django.http import HttpResponse
 
 from rest_framework import viewsets
@@ -59,8 +62,27 @@ class CalculationViewSet(viewsets.ViewSet):
         # calculate number of clusters
         cluster_count, clusters = circular_pot_calculation(pot_radius,
                 seed_radius)
+
+        canvas_height = 500
+        canvas_width = 500
+        canvas_center_x = canvas_width / 2
+        canvas_center_y = canvas_height / 2
+        ratio = canvas_height / 2 / pot_radius
+
+        image = Image.new('RGBA', (canvas_width, canvas_height), 'white')
+        draw = ImageDraw.Draw(image)
+        for cluster in clusters:
+            draw.ellipse((canvas_center_x + (cluster['x'] - seed_radius) * ratio,
+                           canvas_center_y + (cluster['y'] - seed_radius) * ratio,
+                           canvas_center_x + (cluster['x'] + seed_radius) * ratio,
+                           canvas_center_y + (cluster['y'] + seed_radius) * ratio),
+                           fill="#009933")
+        buffer = cStringIO.StringIO()
+        image.save(buffer, "JPEG")
+        image_string = base64.b64encode(buffer.getvalue())
         return Response({"cluster_count": cluster_count,
-                         "clusters": clusters})
+                         "clusters": clusters,
+                         'image': '{0}'.format(image_string)})
 
     @list_route(methods=['get'])
     def rectangular_pot(self, request):
@@ -99,8 +121,26 @@ class CalculationViewSet(viewsets.ViewSet):
         cluster_count, clusters = rectangular_pot_calculation(pot_length,
                                                               pot_width,
                                                               seed_radius)
+        ratio = 500 / min(pot_length, pot_width)
+        canvas_height = int(pot_length * ratio)
+        canvas_width = int(pot_width * ratio)
+
+        # draw circles
+        image = Image.new('RGBA', (canvas_width, canvas_height), 'white')
+        draw = ImageDraw.Draw(image)
+        for cluster in clusters:
+            draw.ellipse(((cluster['x'] - seed_radius) * ratio,
+                          (cluster['y'] - seed_radius) * ratio,
+                          (cluster['x'] + seed_radius) * ratio,
+                          (cluster['y'] + seed_radius) * ratio),
+                           fill="#009933")
+
+        buffer = cStringIO.StringIO()
+        image.save(buffer, "JPEG")
+        image_string = base64.b64encode(buffer.getvalue())
         return Response({"cluster_count": cluster_count,
-                         "clusters": clusters})
+                         "clusters": clusters,
+                         "image": image_string})
 
     @list_route(methods=['get'])
     def circular_pot_image(self, request):
@@ -122,23 +162,8 @@ class CalculationViewSet(viewsets.ViewSet):
         else:
             return Response("Please specify pot_radius, and seed_radius in your parameters")
         
-        # variables required for drawing
-        canvas_height = 500
-        canvas_width = 500
-        canvas_center_x = canvas_width / 2
-        canvas_center_y = canvas_height / 2
-        ratio = canvas_height / 2 / pot_radius
-
-        # draw circles
-        image = Image.new('RGBA', (canvas_width, canvas_height), 'white')
-        draw = ImageDraw.Draw(image)
-        clusters = self.circular_pot(request).data['clusters']
-        for cluster in clusters:
-            draw.ellipse((canvas_center_x + (cluster['x'] - seed_radius) * ratio,
-                           canvas_center_y + (cluster['y'] - seed_radius) * ratio,
-                           canvas_center_x + (cluster['x'] + seed_radius) * ratio,
-                           canvas_center_y + (cluster['y'] + seed_radius) * ratio),
-                           fill="#009933")
+        image_string = self.circular_pot(request).data['image']
+        image = Image.open(cStringIO.StringIO(base64.b64decode(image_string)))
         response = HttpResponse(content_type="image/jpeg")
         image.save(response, "JPEG")
         return response
@@ -165,21 +190,9 @@ class CalculationViewSet(viewsets.ViewSet):
         else:
             return Response("Please specify pot_length, pot_width, and seed_radius in your parameters")
         
-        # variables required for drawing
-        ratio = 500 / min(pot_length, pot_width)
-        canvas_height = int(pot_length * ratio)
-        canvas_width = int(pot_width * ratio)
-
         # draw circles
-        image = Image.new('RGBA', (canvas_width, canvas_height), 'white')
-        draw = ImageDraw.Draw(image)
-        clusters = self.rectangular_pot(request).data['clusters']
-        for cluster in clusters:
-            draw.ellipse(((cluster['x'] - seed_radius) * ratio,
-                          (cluster['y'] - seed_radius) * ratio,
-                          (cluster['x'] + seed_radius) * ratio,
-                          (cluster['y'] + seed_radius) * ratio),
-                           fill="#009933")
+        image_string = self.rectangular_pot(request).data['image']
+        image = Image.open(cStringIO.StringIO(base64.b64decode(image_string)))
         response = HttpResponse(content_type="image/jpeg")
         image.save(response, "JPEG")
         return response
