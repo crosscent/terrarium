@@ -5,10 +5,16 @@ from rest_framework import routers
 
 from terrarium.web.api import authentication
 from terrarium.web.api import calculation
-
+from terrarium.web.api.geomap import views as geomap_views 
 authentication_router = routers.SimpleRouter()
 
 default_router = routers.DefaultRouter()
+
+default_router.register(
+    r'account',
+    authentication.UserView,
+    'account'
+)
 
 default_router.register(
     r'calculation',
@@ -17,9 +23,9 @@ default_router.register(
 )
 
 default_router.register(
-    r'account',
-    authentication.UserView,
-    'account'
+    r'place',
+    geomap_views.PlaceViewSet,
+    'Place'
 )
 
 urlpatterns = [

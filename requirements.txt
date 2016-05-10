@@ -3,5 +3,7 @@ django-environ==0.4.0
 psycopg2==2.6.1
 gunicorn==19.4.5
 djangorestframework==3.3.3
+djangorestframework-gis==0.10.1
 whitenoise==3.0
 pillow==3.2.0
+requests==2.10.0

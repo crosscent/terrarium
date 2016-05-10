@@ -38,10 +38,16 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.gis',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 3rd party apps
     'rest_framework',
+    'rest_framework_gis',
+    # terrarium apps
+    'terrarium.geomap',
+    'terrarium.web',
 ]
 
 MIDDLEWARE_CLASSES = [
