@@ -88,6 +88,9 @@ class CircularPot(Pot):
         if new_radius_difference >= seed_cluster_radius:
             return number_of_circles + self.cluster_calculation(seed_cluster_radius, new_radius_difference)
         elif radius_difference > (2 * seed_cluster_radius):
+            self.optimal_clusters.append({"radius": seed_cluster_radius,
+                                          "x": 0,
+                                          "y": 0})
             return number_of_circles + 1
         else:
             return number_of_circles

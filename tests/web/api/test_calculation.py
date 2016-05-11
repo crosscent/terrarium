@@ -12,6 +12,7 @@ class CircularPotTest(TestCase):
         client = APIClient()
         response = client.get('/api/calculation/circular_pot/?pot_radius={0}&seed_radius={1}'.format(5.5, 1.5)).data
         self.assertEqual(response["cluster_count"], 9)
+        self.assertEqual(len(response['clusters']), response['cluster_count'])
 
     def test_all_integers(self):
         """Use only floats in the GET parameters to circular pot
@@ -19,6 +20,7 @@ class CircularPotTest(TestCase):
         client = APIClient()
         response = client.get('/api/calculation/circular_pot/?pot_radius={0}&seed_radius={1}'.format(5, 1)).data
         self.assertEqual(response["cluster_count"], 17)
+        self.assertEqual(len(response['clusters']), response['cluster_count'])
     
     def test_mix_float_integer(self):
         """Use both float and integer in the GET parameters to circular pot
@@ -26,6 +28,7 @@ class CircularPotTest(TestCase):
         client = APIClient()
         response = client.get('/api/calculation/circular_pot/?pot_radius={0}&seed_radius={1}'.format(5, 1.5)).data
         self.assertEqual(response["cluster_count"], 8)
+        self.assertEqual(len(response['clusters']), response['cluster_count'])
 
     def test_seed_larger_than_pot(self):
         """When the seed cluster radius exceeds the pot radius
@@ -33,6 +36,7 @@ class CircularPotTest(TestCase):
         client = APIClient()
         response = client.get('/api/calculation/circular_pot/?pot_radius={0}&seed_radius={1}'.format(1, 5)).data
         self.assertEqual(response["cluster_count"], 0)
+        self.assertEqual(len(response['clusters']), response['cluster_count'])
 
     def test_only_pot_radius(self):
         """When only the radius of the pot is provided
@@ -53,6 +57,7 @@ class RectangularPotTest(TestCase):
         client = APIClient()
         response = client.get(self.endpoint + '?pot_length={0}&pot_width={0}&seed_radius={1}'.format(5.5, 1.5)).data
         self.assertEqual(response["cluster_count"], 1)
+        self.assertEqual(len(response['clusters']), response['cluster_count'])
 
     def test_all_integers(self):
         """Use only floats in the GET parameters to circular pot
@@ -60,6 +65,7 @@ class RectangularPotTest(TestCase):
         client = APIClient()
         response = client.get(self.endpoint + '?pot_length={0}&pot_width={0}&seed_radius={1}'.format(10, 1)).data
         self.assertEqual(response["cluster_count"], 25)
+        self.assertEqual(len(response['clusters']), response['cluster_count'])
     
     def test_mix_float_integer(self):
         """Use both float and integer in the GET parameters to circular pot
@@ -67,6 +73,7 @@ class RectangularPotTest(TestCase):
         client = APIClient()
         response = client.get(self.endpoint + '?pot_length={0}&pot_width={0}&seed_radius={1}'.format(10.5, 0.75)).data
         self.assertEqual(response["cluster_count"], 49)
+        self.assertEqual(len(response['clusters']), response['cluster_count'])
 
     def test_seed_larger_than_pot(self):
         """When the seed cluster radius exceeds the pot radius
@@ -74,6 +81,7 @@ class RectangularPotTest(TestCase):
         client = APIClient()
         response = client.get(self.endpoint + '?pot_length={0}&pot_width={0}&seed_radius={1}'.format(1, 10)).data
         self.assertEqual(response["cluster_count"], 0)
+        self.assertEqual(len(response['clusters']), response['cluster_count'])
 
     def test_only_pot_length(self):
         """When only the radius of the pot is provided
