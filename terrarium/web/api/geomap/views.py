@@ -45,7 +45,7 @@ class PlaceViewSet(viewsets.ViewSet):
         try:
             place = Place.objects.get(osm_id=pk)
         except Place.DoesNotExist:
-            return Response("osm id {0} does not exist".format(pk),
+            return Response({'detail': "osm id {0} does not exist".format(pk)},
                             status=status.HTTP_404_NOT_FOUND)
 
         serializer = PlaceSerializer(place)
@@ -62,12 +62,19 @@ class PlaceViewSet(viewsets.ViewSet):
         osm_url = 'http://polygons.openstreetmap.fr/get_geojson.py'
         if 'polygons' in data and len(data['polygons']):
             pass
-        else:
+        elif 'osm_id' in data:
             response = requests.get("{0}?id={1}".format(osm_url, data['osm_id']))
             response = json.loads(response.text)
             data['polygons'] = []
-            data['polygons'].append({'polygon': response['geometries'][0]})
-        
+            if 'geometries' in response:
+                data['polygons'].append({'polygon': response['geometries'][0]})
+            else:
+                return Response({'detail': 'Please provide a valid osm_id'},
+                                status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'detail': 'Please provide a valid osm_id'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         serializer = PlaceSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
@@ -92,7 +99,7 @@ class PlaceViewSet(viewsets.ViewSet):
             # HTTP400 is used because a more suitable HTTP422 isn't available.
             # Follow Google's Geocoding status when failed to meet parameter
             # requiremenets
-            return Response("Please define query in your parameters",
+            return Response({'detail': "Please define query in your parameters"},
                             status=status.HTTP_400_BAD_REQUEST)
 
         # define variables for requests, and return the response.
@@ -120,5 +127,5 @@ class PlaceViewSet(viewsets.ViewSet):
         # no result was provided by Nominatim
         if len(response):
             return Response(nominatim_to_place(response[0]), status=status.HTTP_200_OK)
-        return Response(u'No result for {0}'.format(request.GET['query']),
+        return Response({'detail': u'No result for {0}'.format(request.GET['query'])},
                         status=status.HTTP_200_OK)

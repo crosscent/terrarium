@@ -3,6 +3,7 @@ import datetime
 from terrarium.geomap.models import Place
 from terrarium.geomap.models import PlacePolygon
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 class PlacePolygonSerializer(serializers.ModelSerializer):
     """
@@ -38,10 +39,10 @@ class PlaceSerializer(serializers.ModelSerializer):
         """
 
         # remove polygon information and let PlacePolyonSerializer deal with it
-        if 'polygons' in validated_data:
+        if 'polygons' in validated_data and len(validated_data['polygons']):
             polygon_data = validated_data.pop('polygons')
         else:
-            polygon_data = None
+            raise ValidationError('Please provide a valid GeoJSON representation')
 
         place = Place.objects.create(**validated_data)
         
