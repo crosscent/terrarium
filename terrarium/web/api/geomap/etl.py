@@ -23,6 +23,13 @@ def nominatim_to_place(data):
 
     if 'polygonpoints' in data:
         polygons = [{'polygon': {'type': 'MultiPolygon', 'coordinates': [[data.get('polygonpoints', None)]]}}]
+        # make sure that the coordinates provided by Nominatim are floats and
+        # not strings
+        coordinates = polygons[0]['polygon']['coordinates'][0][0]
+        for i in xrange(len(coordinates)):
+            coordinates[i][0] = float(coordinates[i][0])
+            coordinates[i][1] = float(coordinates[i][1])
+            
     else:
         polygons = []
 
