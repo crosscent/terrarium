@@ -64,6 +64,11 @@ class CircularPot(Pot):
 
         # calculate the number of clusters
         number_of_circles = math.floor((2 * math.pi * radius_difference) / (2 * seed_cluster_radius))
+        if radius_difference == 0:
+            self.optimal_clusters.append({"radius": seed_cluster_radius,
+                                          "x": 0,
+                                          "y": 0})
+            return 1
         x0 = radius_difference * math.cos(0 * 2 * math.pi / number_of_circles)
         x1 = radius_difference * math.cos(1 * 2 * math.pi / number_of_circles)
         y0 = radius_difference * math.sin(0 * 2 * math.pi / number_of_circles)
@@ -96,13 +101,9 @@ class CircularPot(Pot):
         if self.get_radius() < cluster.get_radius():
             return (0, self.optimal_clusters)
 
-        if self.get_radius() < cluster.get_radius() * 2:
-            return (1, self.optimal_clusters)
-
-
         radius_difference = self.get_radius() - cluster.get_radius()
-        return (int(self.cluster_calculation(cluster.get_radius(),
-            radius_difference)), self.optimal_clusters)
+        return (int(self.cluster_calculation(cluster.get_radius(), radius_difference)),
+                self.optimal_clusters)
 
 class RectangularPot(Pot):
     """ Class for rectangular pot
