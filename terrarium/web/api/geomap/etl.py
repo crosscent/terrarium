@@ -21,7 +21,14 @@ def nominatim_to_place(data):
     else:
          osm_type = 0
 
+    if 'polygonpoints' in data:
+        polygons = [{'polygon': {'type': 'MultiPolygon', 'coordinates': [[data.get('polygonpoints', None)]]}}]
+    else:
+        polygons = []
+
     return {'display_name': display_name,
             'place_id': place_id, 
             'osm_id': osm_id,
-            'osm_type': osm_type}
+            'osm_type': osm_type,
+            'polygons': polygons
+            }
