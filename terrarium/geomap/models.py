@@ -24,10 +24,10 @@ class Place(models.Model):
 
     osm_type = models.IntegerField(choices=OSM_TYPES, default=NONE)
 
-    def __str__(self):
+    def __unicode__(self):
         """Return the osm_id and name of the place
         """
-        return "{0}, {1}".format(self.osm_id, self.display_name)
+        return u"{0}, {1}".format(self.osm_id, self.display_name)
 
 class PlacePolygon(models.Model):
     """Bounday Polygon for each place in OSM
@@ -43,9 +43,9 @@ class PlacePolygon(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
     simplicity = models.IntegerField(default=0)
 
-    def __str__(self):
+    def __unicode__(self):
         """Return the osm_id, the place name, and the simplicity of the polygon
         """
-        return "{0}, {1}, {2}".format(self.place.osm_id,
+        return u"{0}, {1}, {2}".format(self.place.osm_id,
                                       self.place.display_name,
                                       self.simplicity)

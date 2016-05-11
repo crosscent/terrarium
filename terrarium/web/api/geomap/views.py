@@ -1,9 +1,14 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 """
 This module contains all the views related to the app geomap
 """
 import json
 import requests
 import urllib
+
+from django.utils.encoding import iri_to_uri
+from django.utils.encoding import uri_to_iri
 
 from rest_framework import status
 from rest_framework import viewsets
@@ -49,20 +54,21 @@ class PlaceViewSet(viewsets.ViewSet):
     def create(self, request):
         """
         POST implementation of creating a new ``Place``
-
-        This view accepts a OSM JSON returned from Nominatim API.
         """
 
-        # perform ETL on the data, then make a request to
+        # perform ETL on the data. if no polygons provided, make a request to
         # polygons.openstreetmap.fr/get_geojson.py to retrieve GEOJson
-        nominatim = nominatim_to_place(request.data)
+        data = request.data
         osm_url = 'http://polygons.openstreetmap.fr/get_geojson.py'
-        response = requests.get("{0}?id={1}".format(osm_url, nominatim['osm_id']))
-        response = json.loads(response.text)
-        nominatim['polygons'] = []
-        nominatim['polygons'].append({'polygon': response['geometries'][0]})
+        if 'polygons' in data and len(data['polygons']):
+            pass
+        else:
+            response = requests.get("{0}?id={1}".format(osm_url, data['osm_id']))
+            response = json.loads(response.text)
+            data['polygons'] = []
+            data['polygons'].append({'polygon': response['geometries'][0]})
         
-        serializer = PlaceSerializer(data=nominatim)
+        serializer = PlaceSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -75,6 +81,8 @@ class PlaceViewSet(viewsets.ViewSet):
         
         This view requires ``query`` to be defined in the GET variables, and it
         uses ``query`` to search in Nominatim on OSM.
+
+        Returns a properly formatted PlaceSerializer JSON
         """
         
         # Nominatim Usage Policy
@@ -87,9 +95,9 @@ class PlaceViewSet(viewsets.ViewSet):
             return Response("Please define query in your parameters",
                             status=status.HTTP_400_BAD_REQUEST)
 
-        # define variables for requests, and return the response
+        # define variables for requests, and return the response.
         request_header = {'User-Agent': 'BetterMatter.com'}
-        request_parameters = urllib.urlencode({'q': request.GET['query'],
+        request_parameters = urllib.urlencode({'q': request.GET['query'].encode('utf-8'),
                                             'format': 'json',
                                             'polygon': 1,
                                             'addressdetails': 1})
@@ -106,8 +114,11 @@ class PlaceViewSet(viewsets.ViewSet):
         # us. Thank you Nominatim OSM again!
         for osm_data in response:
             if osm_data.get('osm_type', None) == 'relation':
-                return Response(osm_data, status=status.HTTP_200_OK)
+                return Response(nominatim_to_place(osm_data), status=status.HTTP_200_OK)
 
-        # No result fits the filter
-        return Response('No result for {0}'.format(request.GET['query']),
+        # No result fits the filter, return the first result or return error if
+        # no result was provided by Nominatim
+        if len(response):
+            return Response(nominatim_to_place(response[0]), status=status.HTTP_200_OK)
+        return Response(u'No result for {0}'.format(request.GET['query']),
                         status=status.HTTP_200_OK)
