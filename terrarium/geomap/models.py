@@ -8,8 +8,8 @@ class Place(models.Model):
     by nomination.openstreeetmap.org
     """
     display_name = models.CharField(max_length=255)
-    osm_id = models.PositiveIntegerField(unique=True)
-    place_id = models.PositiveIntegerField()
+    osm_id = models.BigIntegerField(unique=True)
+    place_id = models.BigIntegerField()
     last_updated = models.DateTimeField(auto_now=True)
 
     NONE = 0
