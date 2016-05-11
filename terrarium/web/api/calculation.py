@@ -121,12 +121,12 @@ class CalculationViewSet(viewsets.ViewSet):
         cluster_count, clusters = rectangular_pot_calculation(pot_length,
                                                               pot_width,
                                                               seed_radius)
-        ratio = 500 / min(pot_length, pot_width)
+        ratio = 500 / max(pot_length, pot_width)
         canvas_height = int(pot_length * ratio)
         canvas_width = int(pot_width * ratio)
 
         # draw circles
-        image = Image.new('RGBA', (canvas_width, canvas_height), 'white')
+        image = Image.new('RGBA', (canvas_height, canvas_width), 'white')
         draw = ImageDraw.Draw(image)
         for cluster in clusters:
             draw.ellipse(((cluster['x'] - seed_radius) * ratio,
