@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework_gis',
     # terrarium apps
     'terrarium.geomap',
+    'terrarium.plants',
     'terrarium.web',
 ]
 
