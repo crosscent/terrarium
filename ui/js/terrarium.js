@@ -1,7 +1,11 @@
 'use strict';
 
 var terrarium = angular.module("terrarium",
-                               ['ui.bootstrap', 'terrarium.auth', 'terrarium.home', 'terrarium.tools']);
+                               ['terrarium.auth',
+                                'terrarium.d3',
+                                'terrarium.home',
+                                'terrarium.tools',
+                                'ui.bootstrap']);
 
 terrarium.controller('menuCtrl', function($scope, $location) {
     $scope.menuLinks = [{
